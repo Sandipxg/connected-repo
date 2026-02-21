@@ -20,6 +20,7 @@ import EditNoteIcon from "@mui/icons-material/EditNote";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ulid } from "ulid";
+import { SmartMediaUploader } from "./SmartMediaUploader";
 
 type WritingMode = "prompted" | "free";
 
@@ -28,36 +29,6 @@ export function CreateJournalEntryForm() {
 	const [success, setSuccess] = useState("");
 	const [writingMode, setWritingMode] = useState<WritingMode>("prompted");
 	const [attachments, setAttachments] = useState<MediaFile[]>([]);
-	const attachmentsRef = useRef<MediaFile[]>([]);
-
-	// Cleanup effect to revoke all URLs only on unmount
-	useEffect(() => {
-		return () => {
-			attachmentsRef.current.forEach((a) => URL.revokeObjectURL(a.previewUrl));
-		};
-	}, []);
-
-	// Keep ref in sync for the cleanup effect closure
-	useEffect(() => {
-		attachmentsRef.current = attachments;
-	}, [attachments]);
-
-	const handleAddFiles = useCallback((newFiles: File[]) => {
-		const mediaFiles: MediaFile[] = newFiles.map((file) => ({
-			id: ulid(),
-			file,
-			previewUrl: URL.createObjectURL(file),
-		}));
-		setAttachments((prev) => [...prev, ...mediaFiles]);
-	}, []);
-
-	const handleRemoveFile = useCallback((id: string) => {
-		setAttachments((prev) => {
-			const fileToRemove = prev.find((f) => f.id === id);
-			if (fileToRemove) URL.revokeObjectURL(fileToRemove.previewUrl);
-			return prev.filter((f) => f.id !== id);
-		});
-	}, []);
 
 
 	const [randomPrompt, setRandomPrompt] = useState<any>(null);
@@ -131,8 +102,11 @@ export function CreateJournalEntryForm() {
                 // Use unified DB manager
 				await app.journalEntriesDb.handleLocalCreate(submitData);
 
-				// Cleanup state
-				attachments.forEach((a) => URL.revokeObjectURL(a.previewUrl));
+				// Cleanup state (revoke URLs)
+				attachments.forEach(a => {
+					URL.revokeObjectURL(a.previewUrl);
+					if (a.thumbnailUrl) URL.revokeObjectURL(a.thumbnailUrl);
+				});
 				setAttachments([]);
 				
 				// Pick a new prompt for next entry
@@ -390,10 +364,9 @@ export function CreateJournalEntryForm() {
 					/>
 
 					<Box sx={{ bgcolor: 'background.paper', borderRadius: 2, p: 1.5, border: '1px dashed', borderColor: 'divider' }}>
-						<MediaUploader
-							files={attachments}
-							onAddFiles={handleAddFiles}
-							onRemoveFile={handleRemoveFile}
+						<SmartMediaUploader
+							value={attachments}
+							onChange={setAttachments}
 							maxFiles={20}
 						/>
 					</Box>
