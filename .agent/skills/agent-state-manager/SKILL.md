@@ -8,11 +8,21 @@ description: High-precision lifecycle manager for Bimodal documentation. Enforce
 ## Mission
 Maintain `AGENTS.md` as the "Mirror of Truth" (Machine-centric) and `README.md` as the "Onboarding Map" (Human-centric). Use extreme brevity.
 
-## Core Rules
+## Core Rules (from documentation-lifecycle.md)
 
-### 1. Context Isolation (Creation Rule)
-- **Folder-Specific Context**: Create new `AGENTS.md` files where functional isolation or technical complexity (e.g., sw, worker, or specific packages) requires dedicated LLM context.
-- **Linkage**: Root `AGENTS.md` provides system-wide orchestration; nested files handle module-level execution.
+### 1. 3-Layer Structure
+Every `AGENTS.md` file MUST follow the 3-layer lifecycle:
+- **Blueprint**: Background context, high-level intent, and core stack.
+- **Active Task**: Current status, intent, and context (synchronized with commit messages).
+- **Decision Records**: Tabular logs of architectural decisions (`| ID | Title | Status | Description |`).
+
+### 2. Density & Synchronization
+- **High-Density Language**: Use token-efficient, concise language. Avoid fluff.
+- **Synchronization**: Update the `Active Task` section whenever starting a new major feature or refactor.
+- **Consistency**: Ensure path links and references use absolute paths or relative paths correctly.
+
+## Mission
+Maintain Bimodal documentation integrity across functional isolations (sw, worker, packages).
 
 ### 2. Selective ADR Indexing
 - **Threshold for Logging**: Create an ADR entry ONLY for major architectural shifts, breaking changes, or critical logic decisions (e.g., switching sync strategies).

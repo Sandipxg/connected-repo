@@ -47,10 +47,14 @@ const create = rpcProtectedProcedure
 	.input(journalEntryCreateInputZod)
 	.handler(async ({ input, context: { user } }) => {
 
-		const newJournalEntry = await db.journalEntries.create({
+		let newJournalEntry = await db.journalEntries.create({
 			...input,
 			authorUserId: user.id,
-		});
+		}).onConflictDoNothing();
+
+		if (!newJournalEntry) {
+			newJournalEntry = await db.journalEntries.selectAll().find(input.id);
+		}
 
 		return newJournalEntry;
 	});

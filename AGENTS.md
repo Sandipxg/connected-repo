@@ -18,9 +18,9 @@
 ---
 
 ## 2. Active Task
-**Context**: Standardizing documentation across the monorepo to comply with the Bimodal System.
-**Current Status**: Refactoring root and app-level `AGENTS.md` files to 3-layer structure.
-**Intent**: Ensure all agents have high-density, consistent context without fluff.
+**Context**: Implementing backend idempotency and sync conflict strategies.
+**Current Status**: Completed idempotency fixes for `journal-entries` and `files` routers. Added Plan 008 for sync conflict monitoring.
+**Intent**: Ensure robust data mutations in offline-first environment.
 
 ---
 
@@ -31,6 +31,7 @@
 | [ADR-002] | Worker Isolation | Accepted | Proxy pattern for UI-Worker communication. |
 | [ADR-003] | Offline Mutation Safety | Accepted | Synced records require online connection for edits. |
 | [ADR-004] | Direct Imports | Accepted | NO barrel exports to ensure optimal tree-shaking. |
+| [ADR-005] | Files Metadata Idempotency | Accepted | Use .merge() for files creation to capture asynchronous metadata enrichment. |
 
 ## Quick Reference
 - **Dev**: `yarn dev`

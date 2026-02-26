@@ -70,5 +70,16 @@ describe('Journal Entries Endpoints', () => {
 		it('should fail when user is not authenticated', async () => {
 			await expect(unauthClient.create(dummyEntry)).rejects.toThrow();
 		});
+
+		it('should be idempotent (return existing record on duplicate id)', async () => {
+			const entryWithId = { ...dummyEntry, id: ulid() };
+			const firstCall = await defaultClient.create(entryWithId);
+			expect(firstCall).toBeDefined();
+
+			const secondCall = await defaultClient.create(entryWithId);
+			expect(secondCall).toBeDefined();
+			expect(secondCall.id).toBe(firstCall.id);
+			expect(secondCall.content).toBe(firstCall.content);
+		});
 	});
 });

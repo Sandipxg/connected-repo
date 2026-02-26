@@ -13,9 +13,9 @@
 ---
 
 ## 2. Active Task
-**Context**: Standardizing backend documentation lifecycle.
-**Current Status**: Refactoring `AGENTS.md` to 3-layer lifecycle.
-**Intent**: Maintain precise patterns for migrations, oRPC, and sync.
+**Context**: Backend idempotency enforcement.
+**Current Status**: Implemented `.onConflictDoNothing()` for journal entries and selective `.merge()` for files metadata.
+**Intent**: Prevent duplicate records from network retries and enable async metadata enrichment.
 
 ---
 
@@ -25,6 +25,7 @@
 | [ADR-B01] | Additive Migrations | Accepted | Never rename/drop in one deployment to avoid downtime. |
 | [ADR-B02] | Mutex Cron | Accepted | Prevent concurrent cron runs via `isCronJobRunning` flag. |
 | [ADR-B03] | Soft Delete | Accepted | Mandatory for sync compatibility (use `deletedAt` field). |
+| [ADR-B04] | Files Sync Rationale | Accepted | Use .merge() on create to backup asynchronous metadata. |
 
 ## Technical Guidelines
 

@@ -35,6 +35,7 @@ Building a **Scheduled Prompt & Journal** app with:
 - **Testing Infrastructure (P0):** Vitest + Playwright setup with database integration ✅ COMPLETED
 - **OpenTelemetry & RUM (P0):** Sentry + OTEL distributed tracing ✅ COMPLETED
 - **CI/CD (P0):** GitHub Actions + Coolify deployment (basic) ✅ COMPLETED
+- **Backend Idempotency (P0):** `onConflictDoNothing` and `.merge()` strategies implemented for RPC and OpenAPI routers to prevent duplicate mutations. ✅ COMPLETED
 
 **MISSING FOR MVP ❌**
 1. ~~**Testing Infrastructure (P0):** Vitest setup for backend/frontend with database integration~~ ✅ COMPLETED
@@ -51,7 +52,7 @@ Building a **Scheduled Prompt & Journal** app with:
 12. **Push Notifications (P0):** FCM/APNs setup and event-driven push notifications
 13. **Mobile CI/CD (P0):** GitHub Actions for Android/iOS builds and store uploads
 14. **Payments & Subscriptions (P0):** Stripe integration ($5/month, $50/year)
-15. **Offline-First (V1):** ✅ COMPLETED - IndexedDB with Dexie.js, file attachments with offline storage, sync orchestrator for media uploads, unified AppWorker with CDN/DB operations, offline/online indicators with SSE-based sync, Orchid ORM sync hooks for real-time delta push.
+15. **Offline-First (V1):** ✅ COMPLETED - IndexedDB with Dexie.js, file attachments with offline storage, sync orchestrator for media uploads, unified AppWorker with CDN/DB operations, offline/online indicators with SSE-based sync, Orchid ORM sync hooks for real-time delta push. **Added Plan 008 for sync conflict strategy.**
 16. **Search Functionality (V1):** Backend search implementation
 17. **Gamification (V1):** Streaks and badges system (event-driven)
 
