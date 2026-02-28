@@ -18,9 +18,9 @@
 ---
 
 ## 2. Active Task
-**Context**: Implementing backend idempotency and sync conflict strategies.
-**Current Status**: Completed idempotency fixes for `journal-entries` and `files` routers. Added Plan 008 for sync conflict monitoring.
-**Intent**: Ensure robust data mutations in offline-first environment.
+**Context**: Implementing stability, telemetry, and safety strategies for offline-first sync.
+**Current Status**: Reorganized `.agent/plans` into a 10-step sequential roadmap. Created `/implement-plan` workflow for standardized execution.
+**Intent**: Execute atomic plans sequentially to ensure robust data integrity (starting with Ghost Blob Cleanup).
 
 ---
 
@@ -32,6 +32,7 @@
 | [ADR-003] | Offline Mutation Safety | Accepted | Synced records require online connection for edits. |
 | [ADR-004] | Direct Imports | Accepted | NO barrel exports to ensure optimal tree-shaking. |
 | [ADR-005] | Files Metadata Idempotency | Accepted | Use .merge() for files creation to capture asynchronous metadata enrichment. |
+| [ADR-006] | Sync Recovery (Lost Files) | Accepted | Flag `isMainFileLost` allows metadata sync even if binary data is purged from storage. |
 
 ## Quick Reference
 - **Dev**: `yarn dev`

@@ -125,7 +125,7 @@ export default defineConfig({
       command: "vite preview --mode test --port 5174 --strictPort --host", // Build first, then start preview server
       url: process.env.VITE_USER_APP_URL, // URL to wait for the frontend
       timeout: 120 * 1000, // Max wait for frontend to be ready (e.g., 120 seconds)
-      reuseExistingServer: false, // Always start a new server for frontend
+      reuseExistingServer: true,
       stdout: "pipe", // Show server logs for debugging
       stderr: "pipe",
       // ignoreHTTPSErrors: true,

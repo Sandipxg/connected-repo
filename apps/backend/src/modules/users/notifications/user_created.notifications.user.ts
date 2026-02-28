@@ -8,6 +8,10 @@ export const userCreatedNotificationHandler = async (props: { input: Static<type
 	const { userId, name, email } = props.input;
 
 	try {	
+		if (!suprClient) {
+			return;
+		}
+
 		// create a suprsend user instance for each user
 		const suprUser = suprClient.user.get_instance(userId)
 		suprUser.add_email(email)

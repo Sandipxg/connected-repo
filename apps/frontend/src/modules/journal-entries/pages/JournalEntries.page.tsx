@@ -149,13 +149,13 @@ export default function JournalEntriesPage() {
                             {viewMode === "card" ? (
                                 <JournalEntryCardView 
                                     entries={pendingEntries} 
-                                    onEntryClick={(entryId: string) => navigate(teamId ? `/teams/${teamId}/journal-entries/synced/${entryId}` : `/journal-entries/synced/${entryId}`)}
+                                    onEntryClick={(entryId: string) => navigate(teamId ? `/teams/${teamId}/journal-entries/pending-sync/${entryId}` : `/journal-entries/pending-sync/${entryId}`)}
                                     attachments={pendingAttachmentsMap}
                                 />
                             ) : (
                                 <JournalEntryTableView 
                                     entries={pendingEntries} 
-                                    onEntryClick={(entryId: string) => navigate(teamId ? `/teams/${teamId}/journal-entries/synced/${entryId}` : `/journal-entries/synced/${entryId}`)}
+                                    onEntryClick={(entryId: string) => navigate(teamId ? `/teams/${teamId}/journal-entries/pending-sync/${entryId}` : `/journal-entries/pending-sync/${entryId}`)}
                                     attachments={pendingAttachmentsMap}
                                 />
                             )}

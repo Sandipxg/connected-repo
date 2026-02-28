@@ -61,6 +61,7 @@ export const SmartMediaUploader: React.FC<SmartMediaUploaderProps> = ({
             _blob: file,
             _thumbnailBlob: null,
             _pendingAction: 'create',
+            isMainFileLost: false,
         });
     }
 

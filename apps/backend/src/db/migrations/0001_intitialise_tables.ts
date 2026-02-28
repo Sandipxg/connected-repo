@@ -15,7 +15,8 @@ change(async (db) => {
 
   await db.createEnum('api_status_enum', ['AI Error', 'Invalid API route', 'No active subscription', 'Requests exhausted', 'Pending', 'Server Error', 'Success']);
 
-  await db.createEnum('pg_tbus_task_status_enum', ['pending', 'active', 'completed', 'failed', 'cancelled']);
+  await db.createEnum('pg_tbus_task_status_enum', ['pending', 'active', 'completed'
+, 'failed', 'cancelled']);
 
   await db.createTable(
     'prompts',
@@ -142,7 +143,7 @@ change(async (db) => {
       apiProductSku: t.enum('api_product_enum'),
       apiProductQuantity: t.smallint(),
       requestsConsumed: t.integer(),
-      teamApiId: t.string(26),
+      teamApiId: t.uuid(),
       teamUserReferenceId: t.string(),
       billingInvoiceNumber: t.string().nullable(),
       billingInvoiceDate: t.timestamp().nullable(),
@@ -159,7 +160,7 @@ change(async (db) => {
     'api_product_request_logs',
     (t) => ({
       apiProductRequestId: t.string(26).primaryKey(),
-      teamApiId: t.string(26),
+      teamApiId: t.uuid(),
       teamUserReferenceId: t.string(),
       requestBodyText: t.text().nullable(),
       requestBodyJson: t.json().nullable(),
@@ -194,7 +195,7 @@ change(async (db) => {
       queueName: t.string().nullable(),
       entityType: t.string().nullable(),
       entityId: t.string().nullable(),
-      teamApiId: t.string(26).nullable(),
+      teamApiId: t.uuid().nullable(),
       status: t.enum('pg_tbus_task_status_enum'),
       attemptNumber: t.integer().default(0),
       scheduledAt: t.timestamp().nullable(),
@@ -299,6 +300,7 @@ change(async (db) => {
     mimeType: t.string(),
     cdnUrl: t.string().nullable(),
     thumbnailCdnUrl: t.string().nullable(),
+    isMainFileLost: t.boolean().default(false),
     createdByUserId: t.uuid().foreignKey('users', 'id', {
       onUpdate: 'RESTRICT',
       onDelete: 'CASCADE',

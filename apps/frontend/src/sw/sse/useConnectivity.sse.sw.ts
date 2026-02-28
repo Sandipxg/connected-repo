@@ -54,18 +54,14 @@ export function useConnectivity(userId?: string) {
 		let active = true;
 
 		// 1. Service Worker Sync
-		console.info(`[Connectivity] Setting up sync for user: ${userId}`);
 		const initSW = async () => {
 			try {
 				const sw = await getSWProxy();
 				if (!active) return;
-				console.info('[Connectivity] SW Proxy obtained');
 				const initialStatus = await sw.getStatus() as SSEStatus;
-				console.info(`[Connectivity] Initial SSE status: ${initialStatus}`);
 				setSseStatus(initialStatus);
 
 				await sw.onStatusChange(Comlink.proxy((status: SSEStatus) => {
-					console.info(`[Connectivity] SSE status changed: ${status}`);
 					if (active) {
 						setSseStatus(status);
 						if (status === 'connected' || status === 'sync-complete') {
@@ -77,7 +73,6 @@ export function useConnectivity(userId?: string) {
 						}
 					}
 				}));
-				console.info('[Connectivity] Calling startMonitoring...');
 				sw.startMonitoring(env.VITE_API_URL, userId).catch((err: unknown) => console.error('[Connectivity] Failed to start monitoring:', err));
 			} catch (err) {
 				console.error('[Connectivity] Failed to initialize SW Proxy:', err);

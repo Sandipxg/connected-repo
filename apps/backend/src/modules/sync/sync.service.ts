@@ -82,7 +82,6 @@ export class SyncService {
 			}
 		});
 
-		console.log(`[SyncService] Subscriber count: ${this.subscriberCount}`);
 		return subscription;
 	}
 

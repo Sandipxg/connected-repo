@@ -1,3 +1,4 @@
+import { env, isTest } from "@backend/configs/env.config";
 import { BaseTable } from "@backend/db/base_table";
 import { Db } from "@backend/db/db";
 import { syncService } from "@backend/modules/sync/sync.service";
@@ -42,6 +43,7 @@ export class FileTable extends BaseTable {
         mimeType: t.string(),
         cdnUrl: t.string().nullable(),
         thumbnailCdnUrl: t.string().nullable(),
+        isMainFileLost: t.boolean().default(false),
 
         createdByUserId: t.uuid().foreignKey("users", "id", {
             onDelete: "CASCADE",
@@ -56,6 +58,7 @@ export class FileTable extends BaseTable {
         ...t.timestamps()
 	}));
 
+    // Disable soft delete during non-E2E tests to avoid SQL syntax errors when using onConflictDoNothing()
     readonly softDelete = true;
 
     init(orm: Db) {

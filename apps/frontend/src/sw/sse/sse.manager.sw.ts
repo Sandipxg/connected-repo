@@ -24,7 +24,6 @@ export class SSEManager {
 
     public static getInstance(): SSEManager {
         if (!SSEManager.instance) {
-            console.info('[SSEManager] Creating new instance...');
             SSEManager.instance = new SSEManager();
         }
         return SSEManager.instance;
@@ -115,7 +114,7 @@ export class SSEManager {
     }
 
     constructor() {
-        console.info('[SSEManager] constructor called');
+        
     }
 
     private broadcastSSEMessage(type: SseMessage['type']) {
@@ -174,7 +173,6 @@ export class SSEManager {
         this.resetHeartbeatWatchdog();
 
         if (event.type === 'heartbeat') {
-            console.info('[SSE] Heartbeat received');
             this.broadcastSSEMessage('SSE_HEARTBEAT');
             if (this.currentStatus === 'connected' && this.pendingTables.size === 0) {
                 // We are idle and backend is synced
@@ -182,8 +180,6 @@ export class SSEManager {
             }
             return;
         }
-
-        console.info(`[SSE] Event: ${event.type}`);
 
         if (event.type === 'delta') {
             if ('error' in event && event.error) {
@@ -209,7 +205,6 @@ export class SSEManager {
                 }
 
                 if (event.isLastChunk) {
-                    console.info(`[SSE] Delta complete: ${event.tableName}`);
                     this.pendingTables.delete(event.tableName);
                     if (this.pendingTables.size === 0) {
                         this.updateStatus(this.erroredTables.size > 0 ? 'sync-error' : 'sync-complete');
@@ -228,7 +223,6 @@ export class SSEManager {
         const tableMatch = event.type.match(/^data-change-(.+)$/);
         if (tableMatch) {
             const tableName = tableMatch[1] as TablesToSync;
-            console.info(`[SSE] Real-time [${tableName}]: ${event.operation}`);
             await this.runHandler(tableName, event.data as any, event.operation);
         }
     }
@@ -236,13 +230,11 @@ export class SSEManager {
     private async waitForOnline() {
         if (navigator.onLine) return;
         
-        console.info('[SSE] Device offline. Waiting for network...');
         this.updateStatus('disconnected');
         
         return new Promise<void>((resolve) => {
             const handleOnline = () => {
                 self.removeEventListener('online', handleOnline);
-                console.info('[SSE] Device back online.');
                 resolve();
             };
             self.addEventListener('online', handleOnline);
@@ -265,7 +257,6 @@ export class SSEManager {
     }
 
     public async reconnect() {
-        console.info('[SSE] Manual reconnection triggered');
         this.retryCount = 0;
         if (this.retryAbortController) this.retryAbortController.abort();
     }
@@ -280,13 +271,11 @@ export class SSEManager {
         this.isMonitoring = true;
         this.currentUserId = userId;
         this.retryCount = 0;
-        console.info(`[SSEManager] startMonitoring [${userId}]`);
 
         while (this.isMonitoring) {
             await this.waitForOnline();
             if (!this.isMonitoring) break;
 
-            console.info(`[SSE] Connecting to ${apiUrl}`);
             this.updateStatus('connecting');
             this.abortController = new AbortController();
             this.pendingTables = new Set(TABLES_TO_SYNC_ENUM);
@@ -335,8 +324,6 @@ export class SSEManager {
                     const backoff = Math.min(30000, Math.pow(2, this.retryCount) * 1000);
                     const jitter = backoff * 0.2 * Math.random();
                     const delay = backoff + jitter;
-
-                    console.log(`[SSE] Retry in ${Math.round(delay)}ms (Attempt ${this.retryCount + 1})`);
                     
                     this.retryAbortController = new AbortController();
                     try {

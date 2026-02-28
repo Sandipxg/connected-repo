@@ -14,9 +14,9 @@
 ---
 
 ## 2. Active Task
-**Context**: Syncing frontend documentation with the monorepo's documentation lifecycle standard.
-**Current Status**: Aligning `AGENTS.md` with the 3-layer structure.
-**Context**: Debugging blank journal entry detail page (investigating `useLocalDbItem` and ID consistency).
+**Context**: Ghost Blob Cleanup (Plan 001).
+**Current Status**: Implemented `cleanupOrphans` in `FilesDBManager` to purge records missing binary data during sync startup.
+**Decision**: Automated background cleanup during `SyncOrchestrator` initialization to prevent infinite retry loops.
 
 ---
 
@@ -26,6 +26,8 @@
 | [ADR-F01] | Comlink Proxy | Accepted | Use `getDataProxy()`/`getMediaProxy()` for worker interaction. |
 | [ADR-F02] | Auth Caching | Accepted | LocalStorage fallback for offline session validation. |
 | [ADR-F03] | Mobile-First | Accepted | 44x44px touch targets; responsive scaling at `md` breakpoint. |
+| [ADR-F04] | Ghost Blob Cleanup | Accepted | Purge `create` records missing `_blob` during sync startup to prevent queue blockage. |
+| [ADR-F05] | Sync Recovery (Lost Files) | Accepted | Metadata-only sync allowed when `isMainFileLost` set to prevent blockage. |
 
 ## Technical Guidelines
 

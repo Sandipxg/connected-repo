@@ -70,8 +70,6 @@ export async function initInstrumentation() {
     replaysSessionSampleRate: isDev ? 0 : 0.1,
     replaysOnErrorSampleRate: isDev ? 0 : 1.0,
   });
-
-  console.info("[Instrumentation] Sentry initialized asynchronously.");
 };
 
 /**

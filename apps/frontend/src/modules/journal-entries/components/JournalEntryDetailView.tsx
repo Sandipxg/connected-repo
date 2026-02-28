@@ -176,6 +176,7 @@ export function JournalEntryDetailView({
 						<Tooltip title={!canDelete ? deleteDisabledReason : "Delete Entry"}>
 							<IconButton
 								color="error"
+								aria-label="Delete Entry"
 								disabled={!canDelete || isDeleting}
 								onClick={handleDeleteClick}
 								sx={{

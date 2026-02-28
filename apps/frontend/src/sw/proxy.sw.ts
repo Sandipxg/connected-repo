@@ -40,7 +40,6 @@ async function init() {
 		controller.postMessage({ type: 'CAN_HAS_COMLINK' }, [channel.port2]);
 		
 		const proxy = Comlink.wrap<SSEManager>(channel.port1);
-		console.info('[SW Proxy] Proxy created successfully');
 		
 		// Set the proxy in the cell (handles resolution and re-bridging)
 		swProxyCell.set(proxy);

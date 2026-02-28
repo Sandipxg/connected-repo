@@ -1,4 +1,4 @@
-import { isDev } from "@backend/configs/env.config";
+import { isDev, isTest } from "@backend/configs/env.config";
 import { allowedOrigins } from "@backend/configs/allowed_origins.config";
 import type { NodeHttpRequest, NodeHttpResponse } from '@orpc/standard-server-node';
 
@@ -9,7 +9,6 @@ import type { NodeHttpRequest, NodeHttpResponse } from '@orpc/standard-server-no
  */
 export function handleBetterAuthCors(req: NodeHttpRequest, res: NodeHttpResponse): boolean {
   const originHeader = req.headers.origin || req.headers[':origin'];
-  console.log(`[CORS] Origin: ${originHeader}`);
   const currentOrigin = Array.isArray(originHeader) ? originHeader[0] : originHeader;
 
   if (!currentOrigin) {
@@ -25,14 +24,8 @@ export function handleBetterAuthCors(req: NodeHttpRequest, res: NodeHttpResponse
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-csrf-token, sentry-trace, baggage, x-requested-with');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Vary', 'Origin');
-
-    // Log CORS approval
-    console.log(`[CORS] APPROVED: ${currentOrigin} for ${req.method} ${req.url}`);
   } else {
     console.warn(`[CORS] BLOCKED: ${currentOrigin} for ${req.method} ${req.url}`);
-    if (isDev) {
-      console.log(`[CORS] allowedOrigins: ${JSON.stringify(allowedOrigins)}`);
-    }
   }
 
   // 2. Handle Preflight (OPTIONS)

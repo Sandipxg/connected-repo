@@ -2,13 +2,9 @@ import { registerSW } from 'virtual:pwa-register';
 
 export function initPWA() {
   // Register service worker for PWA functionality
-  console.info('[PWA] Post-mount initialization starting...');
-
   registerSW({
     onRegistered(r: ServiceWorkerRegistration | undefined) {
       if (r) {
-        console.info('[PWA] SW registered: ', r);
-
         // Monitor installation state
         const sw = r.installing || r.waiting || r.active;
         if (sw) {

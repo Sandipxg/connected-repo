@@ -1,6 +1,7 @@
 import { rpcProtectedProcedure } from '@backend/procedures/protected.procedure';
 import { z } from 'zod';
 import { generatePresignedUrlService, generateUrlInput } from './services/generate_presigned_url.cdn.services';
+import { checkFileExistsInCdnService } from './services/check_file_exists.cdn.services';
 
 const generateUrlOutput = z.object({
   signedUrl: z.string(),
@@ -30,7 +31,18 @@ export const generateBatchPresignedUrls = rpcProtectedProcedure
     );
   });
 
+/**
+ * Checks if a file exists in S3.
+ */
+export const checkFileExistsInCdn = rpcProtectedProcedure
+  .input(generateUrlInput)
+  .output(z.object({ exists: z.boolean(), key: z.string(), fetchUrl: z.string() }))
+  .handler(async ({ input, context: { user: { id: userId } } }) => {
+    return await checkFileExistsInCdnService(input, userId);
+  });
+
 export const cdnRouter = {
   generatePresignedUrl,
   generateBatchPresignedUrls,
+  checkFileExistsInCdn,
 };

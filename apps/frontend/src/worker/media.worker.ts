@@ -3,8 +3,6 @@ import { CDNManager } from "./cdn/cdn.manager";
 import { mediaUploadService } from "./cdn/media-upload.service";
 import { exportService } from "./cdn/export.service";
 
-console.info("[MediaWorker] Loading dedicated media/processing worker...");
-
 const mediaWorkerApi = {
   cdn: Comlink.proxy(new CDNManager()),
   media: Comlink.proxy(mediaUploadService),

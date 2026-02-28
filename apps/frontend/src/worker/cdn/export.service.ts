@@ -13,7 +13,6 @@ export class ExportService {
   private async ensureInitialized() {
     if (this.pdfMakeInstance) return;
 
-    console.info("[ExportService] Initializing pdfMake with system fonts...");
     try {
       const instance = pdfMake;
 
@@ -47,7 +46,6 @@ export class ExportService {
       };
 
       this.pdfMakeInstance = instance;
-      console.info("[ExportService] Initialization complete.");
     } catch (err) {
       console.error("[ExportService] Initialization failed:", err);
       throw err;
@@ -66,7 +64,6 @@ export class ExportService {
         list.push(file);
         filesByTableId.set(file.tableId, list);
     }
-    console.info(`[ExportService] Starting CSV export for ${activeEntries.length} active entries (filtered from ${entries.length}).`);
     
     const headers = [
       "Journal ID",
@@ -81,10 +78,6 @@ export class ExportService {
 
     try {
       const rows = activeEntries.map((entry, index) => {
-        if (index % 100 === 0 && index > 0) {
-          console.info(`[ExportService] CSV Progress: ${index}/${activeEntries.length}`);
-        }
-
         const entryFiles = (filesByTableId.get(entry.id) || []);
         const attachments = entryFiles
           .map((f) => `${f.cdnUrl}${f.thumbnailCdnUrl ? ` (Thumb: ${f.thumbnailCdnUrl})` : ""}`)
@@ -104,7 +97,6 @@ export class ExportService {
 
       const csvContent = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
       
-      console.info("[ExportService] CSV generation completed.");
       return new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     } catch (error) {
       console.error("[ExportService] CSV generation failed:", error);
@@ -124,7 +116,6 @@ export class ExportService {
         list.push(file);
         filesByTableId.set(file.tableId, list);
     }
-    console.info(`[ExportService] Starting PDF export for ${activeEntries.length} active entries (filtered from ${entries.length}).`);
     
     await this.ensureInitialized();
 
@@ -140,10 +131,6 @@ export class ExportService {
     try {
       let i = 0;
       for (const entry of activeEntries) {
-        if (i % 50 === 0 && i > 0) {
-          console.info(`[ExportService] PDF Progress: ${i}/${activeEntries.length}`);
-        }
-
         const entryFiles = (filesByTableId.get(entry.id) || []);
         const attachments = entryFiles
           .map((f) => f.fileName)
@@ -157,8 +144,6 @@ export class ExportService {
         ]);
         i++;
       }
-
-      console.info("[ExportService] PDF: Table body generated. Creating document...");
 
       const docDefinition: TDocumentDefinitions = {
         pageOrientation: "landscape",
@@ -198,9 +183,6 @@ export class ExportService {
 
       };
 
-
-      console.info("[ExportService] PDF: Calling createPdf...");
-
       return new Promise((resolve, reject) => {
         try {
           if (!this.pdfMakeInstance) throw new Error("pdfMake not initialized");
@@ -211,11 +193,9 @@ export class ExportService {
           }, 60000);
 
           const pdfDocGenerator = this.pdfMakeInstance.createPdf(docDefinition);
-          console.info("[ExportService] PDF: Requesting Blob...");
           
           pdfDocGenerator.getBlob((blob: Blob) => {
             clearTimeout(timeout);
-            console.info("[ExportService] PDF generation completed.");
             resolve(blob);
           });
         } catch (err) {

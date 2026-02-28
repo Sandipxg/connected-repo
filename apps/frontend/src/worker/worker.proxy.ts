@@ -53,12 +53,10 @@ export const terminateWorkers = () => {
     dataWorker.terminate();
     dataWorker = null;
     dataProxyCell.reset();
-    console.info("[WorkerProxy] DataWorker terminated.");
   }
   if (mediaWorker) {
     mediaWorker.terminate();
     mediaWorker = null;
     mediaProxyCell.reset();
-    console.info("[WorkerProxy] MediaWorker terminated.");
   }
 };

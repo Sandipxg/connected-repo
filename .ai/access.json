@@ -1,0 +1,17 @@
+{
+    "permissions": {
+        "filesystem": {
+            "allow": [
+                "./apps/frontend/e2e/playwright-report/**",
+                "./apps/frontend/e2e/test-results/**"
+            ]
+        },
+        "tools": {
+            "browser": {
+                "allow_local_files": true,
+                "fallback": "text_parsing"
+            }
+        }
+    },
+    "version": "1.0"
+}

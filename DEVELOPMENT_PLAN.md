@@ -36,6 +36,8 @@ Building a **Scheduled Prompt & Journal** app with:
 - **OpenTelemetry & RUM (P0):** Sentry + OTEL distributed tracing ✅ COMPLETED
 - **CI/CD (P0):** GitHub Actions + Coolify deployment (basic) ✅ COMPLETED
 - **Backend Idempotency (P0):** `onConflictDoNothing` and `.merge()` strategies implemented for RPC and OpenAPI routers to prevent duplicate mutations. ✅ COMPLETED
+- **Sync Resiliency (V1):** ✅ COMPLETED - `SyncOrchestrator` now handles "Ghost Blobs" by attempting CDN recovery before metadata sync, ensuring self-healing and preventing sync stalls.
+- **Tooling Simplification:** ✅ COMPLETED - Removed `.env` sync script dependency from `yarn dev` for a leaner development experience.
 
 **MISSING FOR MVP ❌**
 1. ~~**Testing Infrastructure (P0):** Vitest setup for backend/frontend with database integration~~ ✅ COMPLETED
@@ -63,7 +65,7 @@ Building a **Scheduled Prompt & Journal** app with:
       - 007: Standardized Sync Patterns
       - 008: Architecture Simplification
       - 009: Self-Healing & Verification
-      - 010: Disaster Recovery Export
+      - 011: CDN-First File Recovery (Ghost Blob Mitigation) ✅ COMPLETED
 16. **Search Functionality (V1):** Backend search implementation
 17. **Gamification (V1):** Streaks and badges system (event-driven)
 

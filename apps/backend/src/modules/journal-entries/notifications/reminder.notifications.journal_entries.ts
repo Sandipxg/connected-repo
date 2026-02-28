@@ -10,6 +10,10 @@ export const reminderNotificationJournalEntryHandler = async (
 	const { userId, reminderTime } = input;
 
 	try {
+		if (!suprClient) {
+			return;
+		}
+
 		// Trigger suprsend event for supplement reminder
 		const eventProps = {
 			reminderTime

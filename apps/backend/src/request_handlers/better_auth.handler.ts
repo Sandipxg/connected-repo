@@ -13,7 +13,6 @@ export const betterAuthHandler = {
   ) => {
     // 1. Handle CORS and Preflight
     const handled = handleBetterAuthCors(req, res);
-    console.log(`[better-auth] CORS handled: ${handled} for ${req.method} ${req.url}`);
     if (handled) {
       return;
     }
@@ -28,11 +27,6 @@ export const betterAuthHandler = {
         headersForIp.set(key, Array.isArray(value) ? value.join(", ") : value);
       }
     }
-
-    
-    // Get client IP address for logging and potential rate limiting
-      const clientIp = getClientIpAddress(headersForIp);
-    console.log(`[better-auth] ${req.method} ${req.url} - IP: ${clientIp}`);
 
     // 3. Dispatch to Better Auth
     try {

@@ -1,5 +1,4 @@
 import * as Comlink from "comlink";
-console.info("[DataWorker] Loading dedicated database worker...");
 import { clientDb, subscribe } from "./db/db.manager";
 import { filesDb } from "./db/files.db";
 import { journalEntriesDb } from "../modules/journal-entries/worker/journal-entries.db";
@@ -31,7 +30,6 @@ const dataWorkerApi = {
   // Bridge
   setMediaProxy(proxy: Comlink.Remote<MediaWorkerAPI>) {
     setMediaProxyInternal(proxy);
-    console.info("[DataWorker] MediaProxy bridged successfully.");
   },
 };
 

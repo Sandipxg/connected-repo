@@ -1,3 +1,4 @@
+import { env, isTest } from "@backend/configs/env.config";
 import { BaseTable } from "@backend/db/base_table";
 import { syncService } from "@backend/modules/sync/sync.service";
 import { promptSelectAllZod } from "@connected-repo/zod-schemas/prompt.zod";
@@ -19,6 +20,7 @@ export class PromptsTable extends BaseTable {
 		t.index([{column: "updatedAt", order: "DESC"}]),
 	]);
 
+	// Disable soft delete during non-E2E tests to avoid SQL syntax errors when using onConflictDoNothing()
 	readonly softDelete = true;
 
 	init() {

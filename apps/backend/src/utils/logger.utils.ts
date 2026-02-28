@@ -1,4 +1,4 @@
-import { isDev, isProd } from '@backend/configs/env.config';
+import { env, isDev, isProd, isTest } from '@backend/configs/env.config';
 import pino from 'pino';
 import pretty from 'pino-pretty';
 
@@ -17,7 +17,11 @@ export const logger = isDev
 		? pino({
 				level: "info",
 			})
-		: pino();
+		: isTest
+			? pino({
+					level: env.IS_E2E_TEST ? "error" : "silent",
+				})
+			: pino();
 
 /*
 Level 	Numeric Value	Purpose

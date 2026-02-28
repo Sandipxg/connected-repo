@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from '../../../e2e/fixtures';
 
 // Helper function to generate unique test identifiers
 function generateTestId(testName: string): string {
@@ -8,9 +8,15 @@ function generateTestId(testName: string): string {
 }
 
 test.describe('Journal Entries', () => {
+  test.beforeEach(async ({ page }) => {
+    // Navigate and dismiss distractions
+    await page.goto('/journal-entries');
+  });
+
   test.describe('Journal Entries List', () => {
       test('loads and displays journal entries page', async ({ page }) => {
         // Navigate to journal entries
+        // (already done in beforeEach but navigating again for clarity/reliability if needed)
         await page.goto('/journal-entries');
         await page.waitForURL('**/journal-entries');
         await page.waitForLoadState('networkidle');
@@ -72,7 +78,7 @@ test.describe('Journal Entries', () => {
 
       // Verify page loads
       await expect(page.locator('h1')).toContainText('New Journal Entry');
-      await expect(page.locator('text=Create New Journal Entry')).toBeVisible();
+      await expect(page.locator('text=Write your thoughts and reflections')).toBeVisible();
     });
 
     test('displays prompted writing mode by default', async ({ page }) => {
@@ -93,7 +99,9 @@ test.describe('Journal Entries', () => {
       await page.waitForURL('**/journal-entries/new');
 
       // Switch to free write mode
-      await page.locator('button[value="free"]').click();
+      const freeWriteButton = page.locator('button[value="free"]');
+      await freeWriteButton.waitFor({ state: 'visible' });
+      await freeWriteButton.click();
       await expect(page.locator('button[value="free"]')).toHaveAttribute('aria-pressed', 'true');
 
       // Prompt section should be collapsed/hidden
@@ -122,12 +130,14 @@ test.describe('Journal Entries', () => {
 
       // Fill in the content
       await page.locator('textarea[name="content"]').fill('This is a test journal entry with a prompt.');
-
-      // Submit the form
-      await page.locator('button[type="submit"]').click();
+      
+      // Ensure the button is enabled and visible before clicking
+      const submitButton = page.locator('button[type="submit"]');
+      await submitButton.waitFor({ state: 'visible' });
+      await submitButton.click();
 
        // Should show success message
-       await expect(page.locator('text=Journal entry created successfully!')).toBeVisible();
+       await expect(page.getByText('Journal entry created successfully!')).toBeVisible({ timeout: 5000 });
     });
 
     test('can create a journal entry with free write mode', async ({ page }) => {
@@ -136,19 +146,25 @@ test.describe('Journal Entries', () => {
       await page.waitForURL('**/journal-entries/new');
 
       // Ensure free write mode is selected
-      await page.locator('button[value="free"]').click();
-      await expect(page.locator('button[value="free"]')).toHaveAttribute('aria-pressed', 'true');
+      const freeWriteButton = page.locator('button[value="free"]');
+      await freeWriteButton.waitFor({ state: 'visible' });
+      await freeWriteButton.click();
+      await expect(freeWriteButton).toHaveAttribute('aria-pressed', 'true');
 
       // Fill in the content
       await page.locator('textarea[name="content"]').fill('This is a test journal entry in free write mode.');
 
       // Submit the form
-      await page.locator('button[type="submit"]').click();
+      const submitButton = page.locator('button[type="submit"]');
+      await submitButton.waitFor({ state: 'visible' });
+      await submitButton.click();
 
-      // Should show success message and form should reset
-      await expect(page.locator('text=Journal entry created successfully!')).toBeVisible();
-      // Check that the textarea is cleared
+      // Form should reset (Check that the textarea is cleared)
       await expect(page.locator('textarea[name="content"]')).toHaveValue('');
+      
+      // Success message might be intercepted on mobile, so we check it with a shorter timeout or skip if needed
+      await expect(page.getByText('Journal entry created successfully!')).toBeVisible({ timeout: 5000 });
+
     });
   });
 
@@ -156,12 +172,16 @@ test.describe('Journal Entries', () => {
       test('loads and displays journal entry detail', async ({ page }) => {
        // First create an entry for testing
        await page.goto('/journal-entries/new');
-       await page.locator('button[value="free"]').click(); // Switch to free write
+       const freeWriteButton = page.locator('button[value="free"]');
+       await freeWriteButton.waitFor({ state: 'visible' });
+       await freeWriteButton.click(); // Switch to free write
        await page.locator('textarea[name="content"]').fill('Test entry for detail view');
-       await page.locator('button[type="submit"]').click();
+       const submitButton = page.locator('button[type="submit"]');
+       await submitButton.waitFor({ state: 'visible' });
+       await submitButton.click();
 
        // Wait for success message
-       await expect(page.locator('text=Journal entry created successfully!')).toBeVisible({ timeout: 5000 });
+       await expect(page.getByText('Journal entry created successfully!')).toBeVisible({ timeout: 5000 });
 
        // Navigate to journal entries list
        await page.goto('/journal-entries');
@@ -183,7 +203,7 @@ test.describe('Journal Entries', () => {
            // Verify detail page elements
            await expect(page.locator('text=Back to Journal Entries')).toBeVisible();
            await expect(page.locator('text=Your Entry')).toBeVisible();
-           await expect(page.locator('text=Delete Entry')).toBeVisible();
+           await expect(page.getByRole('button', { name: 'Delete Entry' })).toBeVisible();
          } else {
            test.skip(true, 'No entries available for detail view test');
          }
@@ -203,7 +223,7 @@ test.describe('Journal Entries', () => {
          await page.locator('button[type="submit"]').click();
 
          // Wait for success message
-         await expect(page.locator('text=Journal entry created successfully!')).toBeVisible({ timeout: 5000 });
+         await expect(page.getByText('Journal entry created successfully!')).toBeVisible({ timeout: 5000 });
 
          // Navigate to journal entries list
          await page.goto('/journal-entries');
@@ -269,7 +289,7 @@ test.describe('Journal Entries', () => {
         await page.locator('button[type="submit"]').click();
 
         // Wait for success message
-        await expect(page.locator('text=Journal entry created successfully!')).toBeVisible({ timeout: 5000 });
+        await expect(page.getByText('Journal entry created successfully!')).toBeVisible({ timeout: 5000 });
 
         // Navigate to journal entries list
         await page.goto('/journal-entries');
@@ -292,7 +312,7 @@ test.describe('Journal Entries', () => {
               await page.waitForURL(/\/journal-entries\/.+/);
 
               // Click delete button
-              await page.locator('text=Delete Entry').click();
+              await page.getByRole('button', { name: 'Delete Entry' }).click();
 
               // Dialog should appear
               await expect(page.locator('text=Delete Journal Entry?')).toBeVisible();
@@ -346,7 +366,8 @@ test.describe('Journal Entries', () => {
           await page.locator('button[type="submit"]').click();
 
           // Wait for success message
-          await expect(page.locator('text=Journal entry created successfully!')).toBeVisible({ timeout: 5000 });
+          // Success message check (optional on mobile)
+          await expect(page.getByText('Journal entry created successfully!')).toBeVisible({ timeout: 5000 });
 
           // Navigate to journal entries list
           await page.goto('/journal-entries');
@@ -370,7 +391,7 @@ test.describe('Journal Entries', () => {
                 await page.waitForURL(/\/journal-entries\/.+/);
 
                 // Click delete button
-                await page.locator('text=Delete Entry').click();
+                await page.getByRole('button', { name: 'Delete Entry' }).click();
 
                 // Try to delete without typing DELETE
                 await page.locator('button.MuiButton-contained:has-text("Delete Entry")').click();
@@ -397,7 +418,7 @@ test.describe('Journal Entries', () => {
                 if (cardCount > 0) {
                   await allCards.first().locator('text=Read More →').click();
                   await page.waitForURL(/\/journal-entries\/.+/);
-                  await page.locator('text=Delete Entry').click();
+                  await page.getByRole('button', { name: 'Delete Entry' }).click();
 
                   // Test validation without typing DELETE
                   await page.locator('button.MuiButton-contained:has-text("Delete Entry")').click();

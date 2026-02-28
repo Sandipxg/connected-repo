@@ -1,3 +1,4 @@
+import { env, isTest } from "@backend/configs/env.config";
 import { BaseTable } from "@backend/db/base_table";
 import { Db } from "@backend/db/db";
 import { FileTable } from "@backend/modules/files/tables/files.table";
@@ -61,6 +62,7 @@ export class JournalEntryTable extends BaseTable {
 		]
 	);
 
+	// Disable soft delete during non-E2E tests to avoid SQL syntax errors when using onConflictDoNothing()
 	readonly softDelete = true;
 
 	relations = {

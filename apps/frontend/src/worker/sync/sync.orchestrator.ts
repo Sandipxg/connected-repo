@@ -49,7 +49,7 @@ export class SyncOrchestrator {
   }
 
   public async start() {
-    console.info("[SyncOrchestrator] Service started.");
+    await filesDb.handleOrphanedFiles();
     this.processQueue();
   }
 
@@ -98,7 +98,6 @@ export class SyncOrchestrator {
       // 1. Batch Original Uploads
       const needingOriginalUpload = recordsToProcess.filter(r => !r.cdnUrl && r._blob);
       if (needingOriginalUpload.length > 0) {
-        console.log(`[SyncOrchestrator] Batching ${needingOriginalUpload.length} original uploads`);
         const { getMediaProxy } = await import("../worker.context");
         const mediaProxy = await getMediaProxy();
         
@@ -123,7 +122,6 @@ export class SyncOrchestrator {
       // 2. Batch Thumbnail Uploads
       const needingThumbnailUpload = recordsToProcess.filter(r => r._thumbnailBlob && !r.thumbnailCdnUrl);
       if (needingThumbnailUpload.length > 0) {
-        console.log(`[SyncOrchestrator] Batching ${needingThumbnailUpload.length} thumbnail uploads`);
         const { getMediaProxy } = await import("../worker.context");
         const mediaProxy = await getMediaProxy();
         
@@ -223,7 +221,6 @@ export class SyncOrchestrator {
 
     // Decoupled: Push entry to backend immediately
     try {
-      console.log(`[SyncOrchestrator] Orchestrating JournalEntry ${entryId} (${action})`);
       let result;
       if (action === 'create') {
         const { _pendingAction, ...data } = record;
@@ -252,9 +249,37 @@ export class SyncOrchestrator {
 
     const tasks: Promise<void>[] = [];
 
+    // 0. Recovery Mode: If blob is missing, check CDN
+    if (!currentFile.cdnUrl && (!currentFile._blob || currentFile._blob.size === 0)) {
+        if (currentFile._syncError === 'FILE_DATA_LOST') return; // Already skipped
+
+        console.warn(`[SyncOrchestrator] Blob missing for ${fileId}, checking CDN for recovery...`);
+        const { getMediaProxy } = await import("../worker.context");
+        const mediaProxy = await getMediaProxy();
+        const checkResult = await mediaProxy.cdn.checkFileExistsInCdn({
+            id: currentFile.id,
+            name: currentFile.fileName,
+            type: currentFile.mimeType,
+        } as any) as { exists: boolean; fetchUrl: string };
+
+        if (checkResult.exists && checkResult.fetchUrl) {
+            await filesDb.update(fileId, { cdnUrl: checkResult.fetchUrl });
+            // Re-fetch state to continue Stage 3
+            const recovered = await filesDb.get(fileId);
+            if (!recovered) return;
+            currentFile = recovered;
+        } else {
+            console.error(`[SyncOrchestrator] File ${fileId} data is permanently lost.`);
+            await filesDb.update(fileId, { _syncError: 'FILE_DATA_LOST', isMainFileLost: true });
+            // Continue to Stage 3 to sync metadata
+            const lost = await filesDb.get(fileId);
+            if (!lost) return;
+            currentFile = lost;
+        }
+    }
+
     // 1. Original Upload Track (Only if mediaProxy is available)
     if (!currentFile.cdnUrl && mediaProxy) {
-      console.log(`[SyncOrchestrator] Starting original upload for ${fileId}`);
       tasks.push(this.triggerOriginalUpload(fileId, currentFile, mediaProxy));
     }
 
@@ -274,12 +299,12 @@ export class SyncOrchestrator {
 
     // 3. Final Sync Stage (Metadata to backend)
     // We only sync if original is uploaded AND (if media) thumbnail is uploaded
-    const originalReady = !!currentFile.cdnUrl;
-    const thumbnailReady = !isMedia || !!currentFile.thumbnailCdnUrl;
+    // OR if the data is lost (in which case we sync what we have)
+    const originalReady = !!currentFile.cdnUrl || currentFile.isMainFileLost;
+    const thumbnailReady = !isMedia || !!currentFile.thumbnailCdnUrl || (currentFile.isMainFileLost && !currentFile._thumbnailBlob);
 
     if (originalReady && thumbnailReady && currentFile._pendingAction === 'create') {
         try {
-            console.log(`[SyncOrchestrator] Finishing file sync (Stage 3) for ${fileId}`);
             const { 
               _blob, _thumbnailBlob, _pendingAction, _lastSyncAttemptAt,
               createdAt, updatedAt, createdByUserId, 
@@ -300,7 +325,6 @@ export class SyncOrchestrator {
 
     // A. Generate if missing
     if (!currentFile._thumbnailBlob) {
-      console.log(`[SyncOrchestrator] Generating thumbnail for ${fileId}`);
       await this.triggerThumbnailGeneration(fileId, currentFile, mediaProxy);
       const updated = await filesDb.get(fileId);
       if (!updated) return;
@@ -309,7 +333,6 @@ export class SyncOrchestrator {
 
     // B. Upload if generated but no URL
     if (currentFile._thumbnailBlob && !currentFile.thumbnailCdnUrl) {
-      console.log(`[SyncOrchestrator] Uploading thumbnail for ${fileId}`);
       await this.triggerThumbnailUpload(fileId, currentFile, mediaProxy);
     }
   }
@@ -385,7 +408,6 @@ export class SyncOrchestrator {
       _pendingAction: null,
     });
     this.needsRescan = true;
-    console.info(`[SyncOrchestrator] Successfully synced ${tableName}:${recordId} (server id: ${serverRecord.id})`);
   }
 
   private getRecordIdField(tableName: TablesToSync): string {

@@ -6,7 +6,7 @@ import type { NodeHttpRequest, NodeHttpResponse } from '@orpc/standard-server-no
 import { decrementActiveRequests, getServerHealth, incrementActiveRequests } from '@backend/utils/graceful_shutdown.utils';
 import { logger } from '@backend/utils/logger.utils';
 import { trace } from '@opentelemetry/api';
-import { env, isDev } from '@backend/configs/env.config';
+import { env, isDev, isTest } from '@backend/configs/env.config';
 
 /**
  * Main request dispatcher that orchestrates all handlers and pre-checks.
@@ -21,8 +21,6 @@ export async function mainRequestDispatcher(
   const method = req.method?.toUpperCase();
 
   // 1. High-level Logging & Trace ID
-  console.log(`[Request] ${method} ${requestUrl}`);
-
   const currentSpan = trace.getActiveSpan();
   if (currentSpan) {
     const spanContext = currentSpan.spanContext();

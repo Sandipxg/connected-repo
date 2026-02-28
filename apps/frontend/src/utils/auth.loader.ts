@@ -16,7 +16,6 @@ export async function authLoader({ context }: LoaderFunctionArgs) {
 
 	// 0. If offline and we have a cache, skip the network call entirely
 	if (isOffline && cached) {
-		console.info("[AuthLoader] Offline: skipping getSession, using cache.");
 		const sessionInfo = {
 			hasSession: true,
 			user: cached.user,
@@ -36,8 +35,6 @@ export async function authLoader({ context }: LoaderFunctionArgs) {
 			const isNetworkError = error && (!error.status || error.status >= 500);
 
 			if (cached && (isOffline || isNetworkError)) {
-				console.info(`[AuthLoader] Using cached session (${isOffline ? 'offline' : 'server unreachable'})`);
-				
 				const sessionInfo = {
 					hasSession: true,
 					user: cached.user,
@@ -120,7 +117,6 @@ export async function authLoader({ context }: LoaderFunctionArgs) {
 			const isFetchError = errorMessage.toLowerCase().includes("fetch") || errorMessage.toLowerCase().includes("network");
 
 			if (isOffline || isFetchError) {
-				console.info("[AuthLoader] Fallback to cache due to fetch error");
 				const sessionInfo = {
 					hasSession: true,
 					user: cached.user,

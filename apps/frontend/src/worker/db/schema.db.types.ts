@@ -5,6 +5,7 @@ export interface StoredFile extends FileSelectAll {
   _thumbnailBlob?: Blob | null;
   _pendingAction?: PendingAction | null;
   _lastSyncAttemptAt?: number;
+  _syncError?: 'FILE_DATA_LOST' | string | null;
 }
 
 export type PendingAction = 'create' | 'update' | 'delete';

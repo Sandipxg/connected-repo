@@ -1,3 +1,4 @@
+import { env, isTest } from "@backend/configs/env.config";
 import { BaseTable } from "@backend/db/base_table";
 import { syncService } from "@backend/modules/sync/sync.service";
 import { TeamAppMemberSelectAll, teamAppMemberSelectAllZod } from "@connected-repo/zod-schemas/team_app.zod";
@@ -49,6 +50,7 @@ export class TeamMemberTable extends BaseTable {
     ...t.timestamps(),
   }));
 
+  // Disable soft delete during non-E2E tests to avoid SQL syntax errors when using onConflictDoNothing()
   readonly softDelete = true;
 
   init() {

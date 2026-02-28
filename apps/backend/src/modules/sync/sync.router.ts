@@ -169,8 +169,6 @@ export const heartbeatSync = rpcProtectedProcedure
 			.filter(m => m.role === "Owner" || m.role === "Admin")
 			.map(m => m.teamId);
 
-		console.info(`[SyncRouter] New connection from user ${user.id} (Table markers: ${tableMarkers.length})`);
-
 		// --- 1. Start Live Subscription FIRST (Buffer incoming events to avoid gaps) ---
 		// We start the iterator early but don't pull from it until deltas are delivered.
 		const liveIterator = syncService.subscribe(signal);
@@ -178,7 +176,6 @@ export const heartbeatSync = rpcProtectedProcedure
 		// --- 2. Deliver Deltas (Delta-on-Connect) ---
 		if (type === "heartbeat") {
 			// Immediately yield a heartbeat to acknowledge connection and reset SW watchdog
-			console.info(`[SyncRouter] Sending initial heartbeat for user ${user.id}`);
 			yield { type: "heartbeat" };
 
 			let hasDeltaError = false;
@@ -194,7 +191,6 @@ export const heartbeatSync = rpcProtectedProcedure
 					cursorId,
 					signal,
 				)) {
-					console.info(`[SyncRouter] Yielding delta chunk for table ${tableName} to user ${user.id}`);
 					yield chunk;
 					if (chunk.error) {
 						hasDeltaError = true;
@@ -204,7 +200,6 @@ export const heartbeatSync = rpcProtectedProcedure
 				if (hasDeltaError) break;
 
 				// Yield heartbeat between tables to maintain connection during potentially slow table transitions
-				console.info(`[SyncRouter] Sending transition heartbeat for user ${user.id}`);
 				yield { type: "heartbeat" };
 			}
 
@@ -253,9 +248,6 @@ export const heartbeatSync = rpcProtectedProcedure
 						}
 					}
 					if (shouldAbort) {
-						console.log(
-							`[SyncRouter] Critical membership change for user ${user.id}. Aborting sync for context refresh.`,
-						);
 						return;
 					}
 				}

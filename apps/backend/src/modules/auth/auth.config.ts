@@ -28,7 +28,7 @@ export const auth = betterAuth({
 		},
 		defaultCookieAttributes: {
 			httpOnly: true,
-			secure: true,
+			secure: isProd,
 		},
 		database: {
 			// Setting generateId to false allows your database handle all ID generation
@@ -49,7 +49,7 @@ export const auth = betterAuth({
 		disabled: false,
 		disableColors: !isDev,
 		// Level is handled in logger utility.
-		level: "debug",
+		level: isTest ? "error" : "debug",
 		log: (level, message, ...args) => {
 			// Map Better Auth log levels to Pino log levels
 			switch (level) {

@@ -1,0 +1,11 @@
+[permissions]
+# Explicitly allowing the agent to read the Playwright reports
+fs_allowlist = [
+    "./apps/frontend/e2e/playwright-report/**",
+    "./apps/frontend/e2e/test-results/**"
+]
+
+[tools.browser]
+# Since you are on macOS, tell the agent to fallback to 
+# text-parsing if the local Chrome driver fails
+allow_local_file_read = true

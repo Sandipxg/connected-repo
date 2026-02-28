@@ -89,4 +89,22 @@ export class CDNManager {
       };
     }
   }
+
+  /**
+   * Checks if a file exists on the CDN remote storage.
+   */
+  async checkFileExistsInCdn(file: IdentifiedFile) {
+    try {
+      const result = await orpcFetch.cdn.checkFileExistsInCdn({
+        id: file.id,
+        fileName: file.name,
+        resourceType: "media",
+        contentType: file.type,
+      });
+      return result;
+    } catch (error) {
+      console.error("[CDNManager] Check file existence failed:", error);
+      return { exists: false, key: "" };
+    }
+  }
 }

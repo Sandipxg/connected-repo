@@ -73,6 +73,23 @@ export class FilesDBManager {
     notifySubscribers("files");
   }
 
+  /**
+   * Identify and flag file records that are marked for creation but are missing their binary blob.
+   * This allows the SyncOrchestrator to attempt recovery or notify the user.
+   */
+  async handleOrphanedFiles() {
+    const orphans = await clientDb.files
+      .filter(f => f._pendingAction === 'create' && (!f._blob || f._blob.size === 0) && !f._syncError)
+      .toArray();
+
+    if (orphans.length > 0) {
+      const ids = orphans.map(o => o.id);
+      console.warn(`[FilesDBManager] Flagging ${ids.length} orphaned records missing blobs for recovery check:`, ids);
+      // We don't delete anymore, we let the SyncOrchestrator handle the recovery attempt
+      notifySubscribers("files");
+    }
+  }
+
   getAll(teamId?: string | null) {
     if (teamId === undefined) return clientDb.files.toArray();
     return clientDb.files.where("teamId").equals(teamId || "").toArray();

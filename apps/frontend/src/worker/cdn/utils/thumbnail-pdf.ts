@@ -47,7 +47,6 @@ export async function generatePdfThumbnail(file: File): Promise<File> {
   } catch (error: any) {
     // Handle password-protected PDFs by generating a placeholder
     if (error?.name === "PasswordException" || error?.message?.includes("password")) {
-      console.info("[ThumbnailPDF] PDF is password protected, generating placeholder...");
       return generatePasswordPlaceholder(file.name);
     }
 

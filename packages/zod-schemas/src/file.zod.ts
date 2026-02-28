@@ -16,7 +16,8 @@ export const fileOptionalZod = z.object({
     cdnUrl: z.url().nullable(),
     thumbnailCdnUrl: z.url().nullable(),
     teamId: z.ulid().nullable(),
-    deletedAt: zTimeEpoch.nullable()
+    deletedAt: zTimeEpoch.nullable(),
+    isMainFileLost: z.boolean().default(false),
 });
 
 export const fileCreateInputZod = fileMandatoryZod

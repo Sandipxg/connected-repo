@@ -1,7 +1,8 @@
-import { chromium, devices } from '@playwright/test';
+import { chromium, webkit, devices } from '@playwright/test';
 
 async function createAuthState<T extends typeof devices>(deviceConfig: T[keyof T], authFilePath: string) {
-	const browser = await chromium.launch();
+	const browserType = deviceConfig.defaultBrowserType === 'webkit' ? webkit : chromium;
+	const browser = await browserType.launch();
 	const context = await browser.newContext(deviceConfig);
 	const page = await context.newPage();
 
@@ -16,6 +17,10 @@ async function createAuthState<T extends typeof devices>(deviceConfig: T[keyof T
 
 		// Wait for redirect to dashboard
 		await page.waitForURL('**/dashboard');
+
+		// Webkit/Safari fix: wait for network to settle and a small grace period for cookies
+		await page.waitForLoadState('networkidle');
+		await new Promise(r => setTimeout(r, 1000));
 
 		// Save the authenticated state
 		await context.storageState({ path: authFilePath });
